@@ -1,6 +1,6 @@
 # apache-log-parser
 
-Parse an apache server log.
+Parse an apache server log in Clojure.
 
 #### Usage
 
