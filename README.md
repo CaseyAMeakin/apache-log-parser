@@ -20,7 +20,8 @@ which takes a filename and the format string described above as its two input ar
 
 #### Shortcomings
 
-Not all the format codes available have been programmed.  Needs some test code.
+1. Not all the format codes available have been programmed.
+2. Needs some test code.
 
 #### License
 
