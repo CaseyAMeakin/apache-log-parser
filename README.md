@@ -2,16 +2,16 @@
 
 Parse an apache server log.
 
-## Usage
+#### Usage
 
 See sample program in source code.
 
-### Shortcomings
+#### Shortcomings
 
 Not all the format codes have been programmed.  Needs some test code.
 
-## License
+#### License
 
-Copyright © 2016 Casey A. Meakin
+Nope
 
 
