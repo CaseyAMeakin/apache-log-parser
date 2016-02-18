@@ -38,7 +38,8 @@
 (defn get-format-string-key [y]
   (first (get-format-string y)))
 
-(def format-pattern-re (re-pattern (str "(" (str/join "|" (map #(make-regex (first %)) format-strings)) ")")))
+(def format-pattern-re
+  (re-pattern (str "(" (str/join "|" (map #(make-regex (first %)) format-strings)) ")")))
 
 (defn make-log-line-regex [log-format]
   (loop [gaps (str/split log-format format-pattern-re)
@@ -49,18 +50,16 @@
                (str log-line-regex (first gaps) "(" (get-format-string-regex (first fields)) ")" )))))
 
 (defn format-keywords [log-format]
- (loop [fields (map #(first %)(re-seq format-pattern-re log-format)) log-keys []]
+  (loop [fields (map #(first %)(re-seq format-pattern-re log-format)) log-keys []]
     (if (= (count fields) 0) log-keys
         (recur (rest fields) (conj log-keys (get-format-string-key (first fields)))))))
 
 (defn parse-log-file [filename log-format]
   (def my-re (make-log-line-regex log-format))
   (def log-keys (format-keywords log-format))
-  (loop [log-lines (str/split (slurp filename) #"\n")
-         parsed-lines []]
+  (loop [log-lines (str/split (slurp filename) #"\n") parsed-lines []]
     (if (empty? log-lines) parsed-lines
-        (do
-          (recur (rest log-lines) (conj parsed-lines (zipmap log-keys (rest (re-matches my-re (first log-lines))))))))))
+        (recur (rest log-lines) (conj parsed-lines (zipmap log-keys (rest (re-matches my-re (first log-lines)))))))))
 
 ;; Example usage
 
