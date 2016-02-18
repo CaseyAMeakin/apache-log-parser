@@ -4,7 +4,14 @@ Parse an apache server log.
 
 #### Usage
 
-See sample program in source code.
+
+(defn -main
+  [& args]
+  (println "Apache log parser test!")
+  (def log-format "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"")
+  (def my-log (parse-log-file "other_vhosts_access.log" log-format))
+  (doseq [x my-log] (if (not= (:request-header-Referer x) "-")
+                      (println (:request-header-Referer x) ":" (:time x) ))))
 
 #### Shortcomings
 
