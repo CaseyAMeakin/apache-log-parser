@@ -7,12 +7,12 @@ Parse an apache server log.
 
 <p>First, define the format string used by Apache.  Look for keyword LogFormat in /etc/apache2/apache2.conf.  See: http://httpd.apache.org/docs/2.2/mod/mod_log_config.html</p>
 
-<p><pre><code>(def log-format "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"")<code></pre></p>
+<p>```(def log-format "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"")```<p>
 
-<p>The log file can then be parsed using the <code>parse-log-file</code> function,
+<p>The log file can then be parsed using the ```parse-log-file``` function,
 which takes a filename and the format string described above as its two input arguments.</p>
 
-<p><pre></code>(def my-log (parse-log-file "other_vhosts_access.log" log-format))</code></pre></p>
+<p>```(def my-log (parse-log-file "other_vhosts_access.log" log-format))```<p>
 
 #### Shortcomings
 
