@@ -3,7 +3,7 @@
 
 
 (defn regex-add [a b & c]
-  "Concatenate two regular expressions"
+  "Concatenate two or more regular expressions"
   (if (not (empty? c)) (recur (re-pattern (str (str a ) (str b))) (first c) (rest c))
       (re-pattern (str (str a ) (str b)))))
 
