@@ -12,7 +12,7 @@
 (defn make-regex [format-template-re]
   (re-pattern (str (first (str format-template-re)) "[<>]?" (apply str (rest (str format-template-re))))))
 
-(defn get-format-inlined-keyword [output-prefix input-suffix]
+(defn make-inlined-keyword-getter-fn [output-prefix input-suffix]
   (fn [fmt] (-> input-suffix
                 re-pattern
                 (#(regex-add #"%\{([^\}]+?)\}" %))
@@ -34,7 +34,7 @@
     [#"%s" #"[0-9]+?|-" ~(fn [_] :status )]
     [#"%\{[^\}]+?\}p" #".*?" ~(fn [_] :server-port)]
     [#"%\{User-Agent\}i" #".*?" ~(fn [_] :user-agent)]
-    [#"%\{[^\}]+?\}i" #".*?" ~(get-format-inlined-keyword "request-header-" "i")]))
+    [#"%\{[^\}]+?\}i" #".*?" ~(make-inlined-keyword-getter-fn "request-header-" "i")]))
 
 (def format-pattern-re
   (re-pattern (str "(" (str/join "|" (map #(make-regex (first %)) format-strings)) ")")))
