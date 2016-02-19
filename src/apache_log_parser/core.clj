@@ -15,11 +15,11 @@
 (defn get-format-inlined-keyword [output-prefix input-suffix]
   (fn [fmt] (-> input-suffix
                 re-pattern
-                (#(regex-add #"%\{([^\}]+?)\}" %) )
+                (#(regex-add #"%\{([^\}]+?)\}" %))
                 (#(re-matches % fmt) )
-                (last)
+                last
                 (#(str output-prefix %))
-                (keyword))))
+                keyword)))
 
 ;; Need to complete list of format codes here (these were the ones I needed)
 (def format-strings
