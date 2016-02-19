@@ -25,6 +25,6 @@ which takes a filename and the format string described above as its two input ar
 
 #### License
 
-Nope
+none
 
 
