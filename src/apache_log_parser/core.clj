@@ -5,8 +5,9 @@
 
 (defn regex-add
   "Concatenate two or more regular expressions"
-  [a b & c] (if (empty? c) (re-pattern (str (str a ) (str b)))
-                (recur (re-pattern (str (str a ) (str b))) (first c) (rest c))))
+  [a b & c]
+  (if (empty? c) (re-pattern (str (str a ) (str b)))
+      (recur (re-pattern (str (str a ) (str b))) (first c) (rest c))))
 
 (defn make-regex [format-template-re]
   (re-pattern (str (first (str format-template-re)) "[<>]?" (apply str (rest (str format-template-re))))))
