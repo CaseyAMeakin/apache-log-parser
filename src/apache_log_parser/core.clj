@@ -13,7 +13,13 @@
   (re-pattern (str (first (str format-template-re)) "[<>]?" (apply str (rest (str format-template-re))))))
 
 (defn get-format-inlined-keyword [output-prefix input-suffix]
-  (fn [fmt] (keyword (str output-prefix (last (re-matches (regex-add #"%\{([^\}]+?)\}" (re-pattern input-suffix)) fmt))))))
+  (fn [fmt] (-> input-suffix
+                re-pattern
+                (#(regex-add #"%\{([^\}]+?)\}" %) )
+                (#(re-matches % fmt) )
+                (last)
+                (#(str output-prefix %))
+                (keyword))))
 
 ;; Need to complete list of format codes here (these were the ones I needed)
 (def format-strings
