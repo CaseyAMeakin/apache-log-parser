@@ -13,10 +13,9 @@
   (re-pattern (str (first (str format-template-re)) "[<>]?" (apply str (rest (str format-template-re))))))
 
 (defn make-inlined-keyword-getter-fn [output-prefix input-suffix]
-  (fn [fmt] (-> input-suffix
-                re-pattern
+  (fn [fmt] (-> (re-pattern input-suffix)
                 (#(regex-add #"%\{([^\}]+?)\}" %))
-                (#(re-matches % fmt) )
+                (re-matches fmt)
                 last
                 (#(str output-prefix %))
                 keyword)))
@@ -61,7 +60,12 @@
   (def log-keys (format-keywords log-format))
   (loop [log-lines (str/split (slurp filename) #"\n") parsed-lines []]
     (if (empty? log-lines) parsed-lines
-        (recur (rest log-lines) (conj parsed-lines (zipmap log-keys (rest (re-matches my-re (first log-lines)))))))))
+        (recur (rest log-lines)
+               (-> (first log-lines)
+                   (#(re-matches my-re %))
+                   rest
+                   (#(zipmap log-keys %))
+                   (#(conj parsed-lines %)))))))
 
 ;; Example usage
 
