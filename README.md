@@ -5,7 +5,7 @@ Parse an apache server log in Clojure.
 #### Usage
 
 
-You first need to define the format string which was used by Apache. This can be found in your `/etc/apache2/apache2.conf` file with keyword `LogFormat`.  In this example I set up a standard default format and associate it with a variable `log-format`:
+You first need to define the format string which was used by Apache. This can be found in your `/etc/apache2/apache2.conf` file with keyword `LogFormat`.  Here's a simple example where I set up a standard default format:
 
 ```
 (def log-format "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"")
@@ -24,7 +24,7 @@ Take a look at the tests for a few examples.
 
 #### Acknowledgements
 
-Inspired by <a href="https://github.com/rory/apache-log-parser">https://github.com/rory/apache-log-parser</a>.
+Inspired by the Python code <a href="https://github.com/rory/apache-log-parser">https://github.com/rory/apache-log-parser</a>.
 
 #### Wish List
 
