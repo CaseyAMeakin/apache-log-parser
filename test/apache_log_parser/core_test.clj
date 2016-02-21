@@ -13,9 +13,12 @@
   (is (= (:req-first-line output) "GET / HTTP/1.1"))
   (is (= (:request-header-User-Agent output) "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.18)"))
   (is (= (:request-header-Referer output) "https://example.com/"))
-  (is (= (apply hash-set (keys output)
-                (hash-set :remote-host :pid :time :time-us :req-first-line :status :response-bytes-clf
-                          :response-header-Referer :reseponse-header-User-Agent :remote-logname :remote-user)))))
+  (is (= (apply hash-set (keys output))
+         (hash-set :remote-host :pid :time :time-us :req-first-line :status :remote-bytes-clf
+                   :request-header-Referer :request-header-User-Agent :remote-logname :remote-user))))
+
+
+;; #{:request-header-User-Agent :remote-user :remote-host :time :req-first-line :pid :time-us :status :remote-bytes-clf :request-header-Referer :remote-logname}
 
 (deftest remote-ip
   (def log-format "%a %l %u %t \"%r\" %>s %b")
