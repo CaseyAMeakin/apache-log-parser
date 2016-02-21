@@ -1,4 +1,4 @@
-(defproject apache-log-parser "0.1.0-SNAPSHOT"
+(defproject apache-log-parser "0.1.0"
   :description "Code to parse an apache webserver log file"
   :url "https://github.com/CaseyAMeakin/apache-log-parser"
   :license "none"
