@@ -2,6 +2,8 @@
 
 Parse an apache server log in Clojure.
 
+[![Build Status](https://travis-ci.org/CaseyAMeakin/apache-log-parser.svg?branch=master)](https://travis-ci.org/CaseyAMeakin/apache-log-parser)
+
 #### Usage
 
 
