@@ -20,20 +20,48 @@
                 (#(str output-prefix %))
                 keyword)))
 
+(def ipv4-addr-re #"(?:\d{1,3}\.){3}\d{1,3}")
+(def ipv6-addr-re #"(?:[0-9A-Fa-f]{0,4}:){2,7}(?:[0-9A-Fa-f]{0,4})")
+(def ip-addr-re (regex-add ipv4-addr-re #"|" ipv6-addr-re))
+
 ;; Need to complete list of format codes here (these were the ones I needed)
 (def format-strings
-  `([#"%v" #".*?" ~(fn [_] :server-name) ]
-    [#"%p" #".*?" ~(fn [_] :server-port) ]
+  `(
+    [#"%a" ~ip-addr-re ~(fn [_] :remote-ip) ]
+    [#"%A" ~ip-addr-re ~(fn [_] :local-ip) ]
+    [#"%B" #"\d+|-" ~(fn [_] :response-bytes) ]
+    [#"%b" #"\d+|-" ~(fn [_] :remote-bytes-clf) ]
+    [#"%\{[^\}]+?\}C" #".*?" ~(make-inlined-keyword-getter-fn "cookie-" "C")]
+    [#"%D" #"-?\d+" ~(fn [_] :time-us) ]
+    [#"%\{[^\}]+?\}e" ".*?"  ~(make-inlined-keyword-getter-fn "env-" "e")]
+    [#"%f" #".*?" ~(fn [_] :filename) ]
     [#"%h" #".*?" ~(fn [_] :remote-host) ]
+    [#"%H" #".*?" ~(fn [_] :protocol)]
+    [#"%\{[^\}]+?\}i" #".*?" ~(make-inlined-keyword-getter-fn "request-header-" "i")]
+    [#"%k" #".*?" ~(fn [_] :num_keepalives)]
     [#"%l" #".*?" ~(fn [_] :remote-logname)]
-    [#"%u" #".*?" ~(fn [_] :remote-user)]
+    [#"%m" #".*?" ~(fn [_] :method)]
+    [#"%\{[^\}]+?\}n" #".*?" ~(make-inlined-keyword-getter-fn "note-" "n")]
+    [#"%\{[^\}]+?\}o" #".*?" ~(make-inlined-keyword-getter-fn "response-header-" "o")]
+    [#"%p" #".*?" ~(fn [_] :server-port) ]
+    [#"%\{[^\}]+?\}p" #".*?" ~(make-inlined-keyword-getter-fn "server-port" "p")]
+    [#"%P" #".*?" ~(fn [_] :pid)]
+    [#"%\{[^\}]+?\}P" #".*?" ~(make-inlined-keyword-getter-fn "pid-" "P")]
+    [#"%q" #".*?" ~(fn [_] :query-string)]
     [#"%r" #".*?" ~(fn [_] :req-first-line)]
-    [#"%O" #".*?" ~(fn [_] :bytes-sent)]
-    [#"%t" #"\[.*?\]" ~(fn [_] :time) ]
+    [#"%R" #".*?" ~(fn [_] :handler)]
     [#"%s" #"[0-9]+?|-" ~(fn [_] :status )]
-    [#"%\{[^\}]+?\}p" #".*?" ~(fn [_] :server-port)]
-    [#"%\{User-Agent\}i" #".*?" ~(fn [_] :user-agent)]
-    [#"%\{[^\}]+?\}i" #".*?" ~(make-inlined-keyword-getter-fn "request-header-" "i")]))
+    [#"%t" #"\[.*?\]" ~(fn [_] :time) ]
+    [#"%\{[^\}]+?\}t" #".*?" ~(make-inlined-keyword-getter-fn "time-" "t")]
+    [#"%\{[^\}]+?\}x" #".*?" ~(make-inlined-keyword-getter-fn "extension-" "x")]
+    [#"%T" #".*?" ~(fn [_] :time_s)]
+    [#"%u" #".*?" ~(fn [_] :remote-user)]
+    [#"%U" #".*?" ~(fn [_] :url_path)]
+    [#"%v" #".*?" ~(fn [_] :server-name) ]
+    [#"%V" #".*?" ~(fn [_] :server-name-2)]
+    [#"%X" #".*?" ~(fn [_] :conn-status)]
+    [#"%I" #".*?" ~(fn [_] :bytes-recv)]
+    [#"%O" #".*?" ~(fn [_] :bytes-sent)]))
 
 (def format-pattern-re
   (re-pattern (str "(" (str/join "|" (map #(make-regex (first %)) format-strings)) ")")))
@@ -42,21 +70,28 @@
   (def fmt-spec (first (filter (fn [x] (re-matches (make-regex (first x)) y))  format-strings)))
   (apply hash-map (interleave '(:key :fmt :regex) (cons ((last fmt-spec) y) (butlast fmt-spec)))))
 
-(defn make-log-line-regex [log-format]
+(defn make-logline-re [log-format]
   (loop [gaps (str/split log-format format-pattern-re)
          fields (map #(first %)(re-seq format-pattern-re log-format))
-         log-line-regex ""]
-    (if (empty? fields) (re-pattern (str log-line-regex (first gaps)))
+         logline-re ""]
+    (if (empty? fields) (re-pattern (str logline-re (first gaps)))
         (recur (rest gaps) (rest fields)
-               (str log-line-regex (first gaps) "(" (:regex (get-format-string (first fields))) ")" )))))
+               (str logline-re (first gaps) "(" (:regex (get-format-string (first fields))) ")" )))))
 
 (defn format-keywords [log-format]
   (loop [fields (map #(first %)(re-seq format-pattern-re log-format)) log-keys []]
     (if (= (count fields) 0) log-keys
         (recur (rest fields) (conj log-keys (:key (get-format-string (first fields))))))))
 
+
+(defn parse-log-line [log-line my-re log-keys]
+  (-> log-line
+      (#(re-matches my-re %))
+      rest
+      (#(zipmap log-keys %))))
+
 (defn parse-log-file [filename log-format]
-  (def my-re (make-log-line-regex log-format))
+  (def my-re (make-logline-re log-format))
   (def log-keys (format-keywords log-format))
   (loop [log-lines (str/split (slurp filename) #"\n") parsed-lines []]
     (if (empty? log-lines) parsed-lines
@@ -67,14 +102,15 @@
                    (#(zipmap log-keys %))
                    (#(conj parsed-lines %)))))))
 
+
+
 ;; Example usage
 
-(defn -main
-  [& args]
-  (println "Apache log parser test!")
-  (def log-format "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"")
-  (def my-log (parse-log-file "other_vhosts_access.log" log-format))
-  (doseq [x my-log] (if (not= (:request-header-Referer x) "-")
-                      (println (:request-header-Referer x) ":" (:time x))))
-  )
-
+;;(defn -main
+;;  [& args]
+;;  (println "Apache log parser test.")
+;;  (def log-format "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"")
+;;  (def my-log (parse-log-file "other_vhosts_access.log" log-format))
+;;  (doseq [x my-log]
+;;    (println (:user-agent x)))
+;;  )

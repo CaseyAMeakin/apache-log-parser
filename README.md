@@ -5,26 +5,32 @@ Parse an apache server log in Clojure.
 #### Usage
 
 
-First, define the format string used by Apache.  Look for keyword LogFormat in /etc/apache2/apache2.conf.  See: http://httpd.apache.org/docs/2.2/mod/mod_log_config.html
+You first need to define the format string which was used by Apache. This can be found in your `/etc/apache2/apache2.conf` file with keyword `LogFormat`.  In this example I set up a standard default format and associate it with a variable `log-format`:
 
 ```
 (def log-format "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"")
 ```
 
-The log file can then be parsed using the `parse-log-file` function,
-which takes a filename and the format string described above as its two input arguments.
+You can read about these format codes in the Apache docs at http://httpd.apache.org/docs/2.2/mod/mod\_log\_config.html.
+
+Having defined your log format, you can now parse a log file with the `parse-log-file` function
+which takes a filename and the format string described above as its two input arguments `(parse-log-file log-filename log-format)`. Here's an example where I parse a log-file named "other\_vhosts\_access.log" and assign the output (which is an array of hash-maps) with the variable `my-log`:
 
 ```
 (def my-log (parse-log-file "other_vhosts_access.log" log-format))
 ```
 
-#### Shortcomings
+Take a look at the tests for a few examples.
 
-1. Not all the format codes available have been programmed.
-2. Needs some test code.
+#### Acknowledgements
+
+Inspired by <a href="https://github.com/rory/apache-log-parser">https://github.com/rory/apache-log-parser</a>.
+
+#### Wish List
+
+Would be nice to have better <b>date and time</b> handling and <b>user agent parsing.</b> User agent parsing with <a href="https://github.com/pingles/clj-detector">https://github.com/pingles/clj-detector</a> works well, but I didn't include it here to keep things dependency free.
 
 #### License
 
-none
-
+nil
 
