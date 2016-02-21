@@ -18,7 +18,7 @@ You first need to define the format string which was used by Apache. This can be
 You can read about these format codes in the Apache docs <a href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html">here</a>.
 
 Having defined your log format, you can now parse a log file with the `parse-log-file` function
-which takes a filename and the format string described above as its two input arguments `(parse-log-file log-filename log-format)`. Here's an example where I parse a log-file named "other\_vhosts\_access.log" and assign the output (which is an array of hash-maps) with the variable `my-log`:
+which takes a filename and the format string described above as its two input arguments `(parse-log-file log-filename log-format)`. Here's an example where I parse a log-file named "other\_vhosts\_access.log" and assign the output (which is a vector of hash-maps) with the variable `my-log`:
 
 ```
 (def my-log (parse-log-file "other_vhosts_access.log" log-format))
