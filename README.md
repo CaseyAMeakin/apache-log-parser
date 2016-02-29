@@ -74,7 +74,7 @@ Inspired by the Python code <a href="https://github.com/rory/apache-log-parser">
 
 #### Wish List
 
-Would be nice to have better <b>date and time</b> handling and <b>user agent parsing.</b> User agent parsing with <a href="https://github.com/pingles/clj-detector">https://github.com/pingles/clj-detector</a> works well, but I didn't include it here to keep things dependency free.
+It would be nice to have better <b>date and time</b> handling and <b>user agent parsing.</b> User agent parsing with <a href="https://github.com/pingles/clj-detector">https://github.com/pingles/clj-detector</a> works well, but I didn't include it here to keep things dependency free.
 
 #### License
 
